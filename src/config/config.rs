@@ -20,25 +20,29 @@ pub struct Config {
 #[derive(Debug)]
 pub struct ConfigManager {
     pub config_file_name: String,
-    pub default_config: Config,
+    pub config: Config,
 }
 
 impl ConfigManager {
     pub fn new() -> Self {
         let config_file_name = "cfg.json".to_string(); // getConfigFileLocation()
-        let mut default_config = Config::new();
+        let mut config = Config::new();
 
-        default_config.access_token = "".to_string();
-        default_config.editor = "vscode".to_string();
-        default_config.alias = None;
-        default_config.tmux = false;
+        config.access_token = "".to_string();
+        config.editor = "vscode".to_string();
+        config.alias = None;
+        config.tmux = false;
 
         Self {
             config_file_name,
-            default_config,
+            config,
         }
     }
 
+    /*
+       - for linux and mac it is ~/.config/session_config.yaml
+       - for windows it is %APPDATA%\local\session_config.yaml ???
+    */
     pub fn get_config_file_location(&self) -> Option<PathBuf> {
         let home_dir = dirs::home_dir()?; // Get user's home directory
 
@@ -82,6 +86,8 @@ impl ConfigManager {
             }
         }
     }
+
+    pub fn write_config(&self) {}
 }
 
 impl Config {

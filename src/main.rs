@@ -28,11 +28,25 @@ const FILE_NAME: &str = "cfg.json";
 
 fn main() -> Result<(), Error> {
     let config_manager = ConfigManager::new();
-    let config = &config_manager.get_config(1);
 
-    println!("Config: {:?}", config);
+    let check_config_exists = &config_manager.get_config(1);
+    match check_config_exists {
+        Ok(_) => println!("Config file exists"),
+        Err(e) => eprintln!("Config file does not exist: {:?}", e), // create new config file
+    }
+    println!("Config manager: {:?}", config_manager.config);
 
-    
+    if config_manager.config.access_token == "" {
+        println!("Access token is empty, authenticating");
+        // config_manager.authenticate().unwrap();
+    } else {
+        println!("authenticated");
+    }
+
+    println!("init tui");
+
+    let json_cfg = config_manager.config.to_json();
+    println!("json_cfg: {:?}", json_cfg);
 
     // let file_location = config_manager.get_config_file_location();
     // match file_location {
