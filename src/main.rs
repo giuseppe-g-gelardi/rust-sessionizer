@@ -30,6 +30,7 @@ mod config;
 
 fn main() -> Result<(), Error> {
     let config_manager = CfgManager::new_cfg_manager();
+    println!("config_manager: {:?}", config_manager);
 
     let cfg = Cfg {
         access_token: "banana".to_string(),
@@ -38,10 +39,12 @@ fn main() -> Result<(), Error> {
         tmux: true,
     };
 
-    // let no_cfg = &config_manager.write_config(None);
-    let with_cfg = &config_manager.write_config(Some(&cfg));
-    // println!("no_cfg: {:?}", no_cfg);
+    let with_cfg = &config_manager.write_config(&cfg);
     println!("with_cfg: {:?}", with_cfg);
+    // ************************************************************************** //
+    // ************************************************************************** //
+    // ************************************************************************** //
+    // ************************************************************************** //
 
     // let with_cfg = &config_manager.write_config(Some(&cfg));
 

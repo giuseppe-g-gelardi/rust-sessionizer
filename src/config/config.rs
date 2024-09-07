@@ -19,25 +19,20 @@ pub struct Cfg {
 
 #[derive(Debug)]
 pub struct CfgManager {
-    // config_file_name: Option<PathBuf>,
-    pub config_file_name: String,
+    pub config_file_name: String, // config_file_name: Option<PathBuf>,
     pub config: Cfg,
 }
 
 impl CfgManager {
     pub fn new_cfg_manager() -> Self {
-        // let config_file_name = self.get_config_file_location();
-        let config_file_name = "cfg.json".to_string();
-        let default_config: Cfg = Cfg {
-            access_token: "".to_string(),
-            editor: "vscode".to_string(),
-            alias: None,
-            tmux: false,
-        };
-
         Self {
-            config_file_name,
-            config: default_config,
+            config_file_name: "cfg.json".to_string(), // self.get_config_file_location(),
+            config: Cfg {
+                access_token: "".to_string(),
+                editor: "vscode".to_string(),
+                alias: None,
+                tmux: false,
+            },
         }
     }
 
@@ -46,7 +41,7 @@ impl CfgManager {
         let config_dir = match std::env::consts::OS {
             "windows" => {
                 let appdata = env::var("APPDATA").ok()?;
-                PathBuf::from(appdata).join("local")
+                PathBuf::from(appdata).join("local") // eww...
             }
             "linux" | "macos" => home_dir.join(".config"),
             _ => {
@@ -79,48 +74,43 @@ impl CfgManager {
         }
     }
 
-    pub fn write_config(self, config: Option<&Cfg>) -> Result<Cfg, Error> {
-        // might need to take a page from go's playbook and do some error handling
-        let mut result = self.save_to_file(None); // ??????
-
-        // needs to be updated slightly
-        //
-        // IF the config file does NOT exist
-        // save default config to file
-        // - create the default config file
-        //
-        // ELSE IF the config file DOES exist
-        // - AND IF the config is None (which means its been set in some way shape or form)
-        // - RETURN - DONT DO ANYTHING - keep it movin!
-        //
-        // ELSE
-        // - update the config file with the new values
-        // - save the updated config file 
-        //
-        // probalby should use a match statement here
-        if config.is_none() {
-            println!("config is None");
-        } else {
-            println!("config is not None: {:#?}", json!(&config));
-            result = self.save_to_file(config); // update the config with the new values
-        }
-
-        println!("result: {:#?}", result);
-        return self.get_config(0);
-    }
-
-    pub fn save_to_file(&self, config: Option<&Cfg>) -> std::io::Result<()> {
-        // there has to be a better way to do this
-        if config.is_none() {
-            let json_cfg = json!(self.config);
-            let json_str = serde_json::to_string_pretty(&json_cfg).unwrap();
-            std::fs::write(&self.config_file_name, json_str)
-        } else {
-            let json_cfg = json!(&config);
-            let json_str = serde_json::to_string_pretty(&json_cfg).unwrap();
-            std::fs::write(&self.config_file_name, json_str)
+    // pub fn write_config(self, config: Option<&Cfg>) -> Result<Cfg, Error> {
+    pub fn write_config(self, config: &Cfg) -> Result<Cfg, Error> {
+        // let mut result = self.save_config_to_file(&config);
+        // self.get_config(0)
+        match self.save_config_to_file(&config) {
+            Err(_) => {
+                return Err(Error::new(
+                    std::io::ErrorKind::NotFound,
+                    "Error writing to or saving file",
+                ));
+            }
+            _ => self.get_config(0),
         }
     }
+
+    fn save_config_to_file(&self, config: &Cfg) -> Result<(), Error> {
+        let json_cfg = json!(&config);
+        let json_str = serde_json::to_string_pretty(&json_cfg).unwrap();
+
+        match std::fs::write(&self.config_file_name, json_str) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(Error::new(
+                std::io::ErrorKind::NotFound,
+                "Error writing to or saving file:, {}".to_string() + &e.to_string(),
+            )),
+        }
+    }
+
+    // fn save_to_file(&self, config: Option<&Cfg>) -> std::io::Result<()> {
+    //     if config.is_none() {
+    //         Ok(())
+    //     } else {
+    //         let json_cfg = json!(&config);
+    //         let json_str = serde_json::to_string_pretty(&json_cfg).unwrap();
+    //         std::fs::write(&self.config_file_name, json_str)
+    //     }
+    // }
 
     // pub fn save_to_file(&self, file_name: &str) -> std::io::Result<()> {
     //     let json_cfg = self.to_json();
@@ -134,6 +124,15 @@ impl CfgManager {
 // ************************************************************************** //
 // ************************************************************************** //
 // ************************************************************************** //
+//
+// let config_file_name = self.get_config_file_location();
+// let config_file_name = "cfg.json".to_string();
+// let default_config: Cfg = Cfg {
+//     access_token: "".to_string(),
+//     editor: "vscode".to_string(),
+//     alias: None,
+//     tmux: false,
+// };
 //
 //
 //
