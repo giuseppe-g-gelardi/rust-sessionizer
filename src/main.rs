@@ -1,6 +1,7 @@
 // internal
 // use config::config::{Config, ConfigManager};
 
+use std::borrow::Borrow;
 // standard library
 // use std::fs;
 use std::io::Error;
@@ -30,21 +31,25 @@ mod config;
 
 fn main() -> Result<(), Error> {
     let config_manager = CfgManager::new_cfg_manager();
-    println!("config_manager: {:?}", config_manager);
 
-    let cfg = Cfg {
-        access_token: "banana".to_string(),
-        editor: "emacs, ewwwww".to_string(),
-        alias: Some("sweet alias".to_string()),
-        tmux: true,
-    };
+    let default_config = &config_manager.generate_default_config_file();
+    println!("default: {:?}", &default_config);
 
-    let with_cfg = &config_manager.write_config(&cfg);
-    println!("with_cfg: {:?}", with_cfg);
-    // ************************************************************************** //
-    // ************************************************************************** //
-    // ************************************************************************** //
-    // ************************************************************************** //
+
+    // let cfg = Cfg {
+    //     access_token: "banana".to_string(),
+    //     editor: "emacs, ewwwww".to_string(),
+    //     alias: Some("sweet alias".to_string()),
+    //     tmux: true,
+    // };
+    //
+    // let with_cfg = &config_manager.write_config(&cfg);
+    // println!("with_cfg: {:?}", &with_cfg);
+
+    // ********************************************************************** //
+    // ********************************************************************** //
+    // ********************************************************************** //
+    // ********************************************************************** //
 
     // let with_cfg = &config_manager.write_config(Some(&cfg));
 
