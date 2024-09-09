@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use std::fs;
-use std::io::{Error, ErrorKind};
+use std::io::Error;
 
 use dirs;
 use std::env;

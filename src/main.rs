@@ -1,15 +1,7 @@
-// internal
-// use config::config::{Config, ConfigManager};
-
-use std::borrow::Borrow;
-// standard library
-// use std::fs;
 use std::io::Error;
-// use std::path::Path;
 
-use self::config::config::{Cfg, CfgManager};
+use self::config::config::CfgManager;
 
-// modules
 mod config;
 
 // // constants ?
@@ -34,7 +26,6 @@ fn main() -> Result<(), Error> {
 
     let default_config = &config_manager.generate_default_config_file();
     println!("default: {:?}", &default_config);
-
 
     // let cfg = Cfg {
     //     access_token: "banana".to_string(),
