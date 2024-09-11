@@ -1,6 +1,6 @@
 {
-  "access_token": "",
-  "alias": null,
-  "editor": "vscode",
-  "tmux": false
+  "access_token": "banana",
+  "alias": "sweet alias",
+  "editor": "emacs, ewwwww",
+  "tmux": true
 }

@@ -61,6 +61,20 @@ impl CfgManager {
         }
     }
 
+    pub fn get_init_config(&self, recursive_depth: u8) -> Result<Cfg, Error> {
+        if recursive_depth > 5 {
+            return Err(Error::new(std::io::ErrorKind::NotFound, "File not found"));
+        }
+
+        match self.read_config_file() {
+            Ok(config) => Ok(config),
+            Err(_) => {
+                self.generate_default_config_file()?;
+                self.get_config(0)
+            }
+        }
+    }
+
     pub fn write_config(&self, config: &Cfg) -> Result<Cfg, Error> {
         match self.save_config_to_file(&config) {
             Err(_) => {
@@ -86,7 +100,13 @@ impl CfgManager {
         }
     }
 
-    fn verify_config_exists(&self) -> bool {
+    fn read_config_file(&self) -> Result<Cfg, Error> {
+        let content = fs::read_to_string(&self.config_file_name)?;
+        let config = serde_json::from_str::<Cfg>(&content)?;
+        Ok(config)
+    }
+
+    pub fn verify_config_exists(&self) -> bool {
         PathBuf::from(self.config_file_name.to_string()).exists()
     }
 
