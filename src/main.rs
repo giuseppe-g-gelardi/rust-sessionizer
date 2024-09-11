@@ -40,7 +40,7 @@ fn main() -> Result<(), Error> {
     let _ = &config_manager.write_config(&cfg); // this is weird to me
     println!("with_cfg: {:?}", &config);
 
-    let upated_cfg = &config_manager.get_config(4);
+    let upated_cfg = &config_manager.get_init_config(4);
     println!("updated_cfg: {:?}", &upated_cfg);
 
     // // TODO: cli.init()
@@ -52,25 +52,26 @@ fn main() -> Result<(), Error> {
     // ********************************************************************** //
 }
 
-// NOTE: go reference 
-//
-// // instantiate the config manager that gets passed around the app
-// cm := c.NewCfgManager()
-// // currently returns a pointer to a UserConfig struct and an error
-// conf, err := cm.GetConfig(1)
-// if err != nil {
-// 	log.Errorf("Error: %v", err)
-// }
-//
-// // check if the access token is empty
-// if conf.AccessToken == "" {
-// 	// if the access token is empty, start the auth flow
-// 	err := auth.Authenticate(conf, cm) // this returns a boolean (isAuth true/false) and an error. should probably remove the bool
-// 	if err != nil {
-// 		log.Errorf("Error: %v", err)
-// 	}
-// } else {
-// 	fmt.Println("You are already authenticated!")
-// }
-// // if the access token is not empty, start the cli
-// cli.InitCli(conf, cm)
+// NOTE: go reference
+/*
+// instantiate the config manager that gets passed around the app
+cm := c.NewCfgManager()
+// currently returns a pointer to a UserConfig struct and an error
+conf, err := cm.GetConfig(1)
+if err != nil {
+    log.Errorf("Error: %v", err)
+}
+
+// check if the access token is empty
+if conf.AccessToken == "" {
+    // if the access token is empty, start the auth flow
+    err := auth.Authenticate(conf, cm) // this returns a boolean (isAuth true/false) and an error. should probably remove the bool
+    if err != nil {
+        log.Errorf("Error: %v", err)
+    }
+} else {
+    fmt.Println("You are already authenticated!")
+}
+// if the access token is not empty, start the cli
+cli.InitCli(conf, cm)
+*/

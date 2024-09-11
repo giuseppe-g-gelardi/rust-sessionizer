@@ -39,25 +39,9 @@ impl CfgManager {
         let config_exists = self.verify_config_exists();
         println!("config_exists: {:?}", config_exists);
         match config_exists {
-            true => self.get_config(0),
+            // true => self.get_config(0),
+            true => self.get_init_config(0),
             false => self.write_config(&self.config),
-        }
-    }
-
-    pub fn get_config(&self, recursive_depth: u8) -> Result<Cfg, Error> {
-        if recursive_depth > 5 {
-            return Err(Error::new(std::io::ErrorKind::NotFound, "File not found"));
-        }
-
-        match fs::read_to_string(self.config_file_name.to_string()) {
-            Ok(content) => match serde_json::from_str::<Cfg>(&content) {
-                Ok(config) => Ok(config),
-                Err(e) => Err(Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    "Invalid data, {}".to_string() + &e.to_string(),
-                )),
-            },
-            Err(_) => self.get_config(recursive_depth + 1),
         }
     }
 
@@ -70,7 +54,8 @@ impl CfgManager {
             Ok(config) => Ok(config),
             Err(_) => {
                 self.generate_default_config_file()?;
-                self.get_config(0)
+                // self.get_config(0)
+                self.get_init_config(0)
             }
         }
     }
@@ -83,7 +68,7 @@ impl CfgManager {
                     "Error writing to or saving file",
                 ));
             }
-            _ => self.get_config(0),
+            _ => self.get_init_config(0),
         }
     }
 
@@ -128,6 +113,23 @@ impl CfgManager {
 
         Some(config_dir.join("cfg.json"))
     }
+
+    // pub fn get_config(&self, recursive_depth: u8) -> Result<Cfg, Error> {
+    //     if recursive_depth > 5 {
+    //         return Err(Error::new(std::io::ErrorKind::NotFound, "File not found"));
+    //     }
+    //
+    //     match fs::read_to_string(self.config_file_name.to_string()) {
+    //         Ok(content) => match serde_json::from_str::<Cfg>(&content) {
+    //             Ok(config) => Ok(config),
+    //             Err(e) => Err(Error::new(
+    //                 std::io::ErrorKind::InvalidData,
+    //                 "Invalid data, {}".to_string() + &e.to_string(),
+    //             )),
+    //         },
+    //         Err(_) => self.get_config(recursive_depth + 1),
+    //     }
+    // }
 }
 
 // ************************************************************************** //
