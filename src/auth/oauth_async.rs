@@ -1,5 +1,5 @@
 use oauth2::basic::BasicClient;
-use oauth2::{reqwest, DeviceAuthorizationUrl, StandardDeviceAuthorizationResponse};
+use oauth2::{reqwest, DeviceAuthorizationUrl /*, StandardDeviceAuthorizationResponse*/};
 use oauth2::{
     AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, RedirectUrl, Scope,
     TokenResponse, TokenUrl,
@@ -8,7 +8,7 @@ use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpListener;
 use url::Url;
 
-// use std::env;
+use webbrowser;
 
 pub async fn authenticate(client_id: String, client_secret: String) {
     let github_client_id = ClientId::new(client_id);
@@ -21,8 +21,6 @@ pub async fn authenticate(client_id: String, client_secret: String) {
     let device_auth_url =
         DeviceAuthorizationUrl::new("https://github.com/login/device/code".to_string())
             .expect("Invalid device authorization URL");
-
-    println!("device auth url: {:?}", device_auth_url);
 
     // Set up the config for the Github OAuth2 process.
     let client = BasicClient::new(github_client_id)
@@ -50,11 +48,12 @@ pub async fn authenticate(client_id: String, client_secret: String) {
         .url();
 
     println!("Open this URL in your browser:\n{authorize_url}\n");
+    let _ = webbrowser::open(&authorize_url.to_string());
 
+    // open_browser
     let (code, state) = {
         println!("Waiting for Github's authorization...");
         // A very naive implementation of the redirect server.
-        // let listener = TcpListener::bind("127.0.0.1:8080").await.unwrap();
         let listener = TcpListener::bind("127.0.0.1:9000").await.unwrap();
 
         loop {
