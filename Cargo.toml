@@ -3,7 +3,23 @@ name = "rust-sessionizer"
 version = "0.1.0"
 edition = "2021"
 
+
+[features]
+default = ["reqwest", "rustls-tls"]
+pkce-plain = []
+native-tls = ["reqwest/native-tls"]
+reqwest-blocking = ["reqwest/blocking"]
+rustls-tls = ["reqwest/rustls-tls"]
+timing-resistant-secret-traits = []
+
 [dependencies]
+anyhow = "1.0.88"
 dirs = "5.0.1"
+dotenv = "0.15.0"
+oauth2 = { version = "5.0.0-alpha.4", features = ["reqwest-blocking" ] }
+reqwest = { version = "0.12", optional = true, default-features = false }
 serde = { version = "1.0.209", features = ["derive"] }
 serde_json = "1.0.127"
+tokio = { version = "1.0", features = ["full"] }
+url = { version = "2.1", features = ["serde"]}
+webbrowser = "1.0.1"
