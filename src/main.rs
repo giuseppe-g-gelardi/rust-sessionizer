@@ -7,19 +7,27 @@ use std::error::Error;
 
 // use self::config::config::{Cfg, CfgManager}; // config lol
 mod auth;
-// mod config;
+mod config;
 
 use auth::auth::authenticate;
+use config::config::CfgManager;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
+
+    let config_manager = CfgManager::new_cfg_manager();
+    let config = &config_manager.get_init_config(1);
+
+    println!("config: {:?}", config);
 
     let client_id = std::env::var("client_id").expect("client_id must be set");
     let client_secret = std::env::var("client_secret").expect("client_secret must be set");
 
     let auth = authenticate(client_id, client_secret).await;
     println!("auth: {:?}", auth);
+
+    // write the access_token (auth) to the config file
 
     Ok(())
 }

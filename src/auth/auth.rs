@@ -10,7 +10,8 @@ use url::Url;
 
 use webbrowser;
 
-pub async fn authenticate(client_id: String, client_secret: String) {
+pub async fn authenticate(client_id: String, client_secret: String)-> String {
+    let mut access_token = &String::new();
     let github_client_id = ClientId::new(client_id);
     let github_client_secret = ClientSecret::new(client_secret);
     let auth_url = AuthUrl::new("https://github.com/login/oauth/authorize".to_string())
@@ -111,8 +112,8 @@ pub async fn authenticate(client_id: String, client_secret: String) {
 
     println!("Github returned the following token:\n{token_res:?}\n");
 
-    if let Ok(token) = token_res {
-        let access_token = token.access_token().secret();
+    if let Ok(token) = &token_res {
+        access_token = token.access_token().secret();
         /*
          * NOTE:  token.access_token().secret() is the token!!!!!!
          * this is where you write the token to the config file
@@ -132,4 +133,5 @@ pub async fn authenticate(client_id: String, client_secret: String) {
         };
         println!("Github returned the following scopes:\n{scopes:?}\n");
     }
+    access_token.to_string()
 }
