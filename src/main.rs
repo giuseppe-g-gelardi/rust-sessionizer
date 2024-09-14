@@ -10,23 +10,16 @@ mod auth;
 mod util;
 // mod config;
 
-// use util::util::open_browser;
+use auth::oauth_async;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
 
-    // match open_browser("http://google.com") {
-    //     Ok(_) => println!("opened browser"),
-    //     Err(e) => println!("error: {:?}", e),
-    // }
-
     let client_id = std::env::var("client_id").expect("client_id must be set");
     let client_secret = std::env::var("client_secret").expect("client_secret must be set");
-    println!("client_id: {:?}", client_id);
-    println!("client_secret: {:?}", client_secret);
 
-    let auth = auth::oauth_async::authenticate(client_id, client_secret).await;
+    let auth = oauth_async::authenticate(client_id, client_secret).await;
     println!("auth: {:?}", auth);
 
     Ok(())

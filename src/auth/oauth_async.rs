@@ -48,7 +48,7 @@ pub async fn authenticate(client_id: String, client_secret: String) {
         .url();
 
     println!("Open this URL in your browser:\n{authorize_url}\n");
-    let _ = webbrowser::open(&authorize_url.to_string());
+    let _ = webbrowser::open(&authorize_url.to_string()); //TODO: should see if this can return an error
 
     // open_browser
     let (code, state) = {
@@ -97,6 +97,10 @@ pub async fn authenticate(client_id: String, client_secret: String) {
 
     println!("Github returned the following code:\n{}\n", code.secret());
     println!(
+        "!!!!!!!!Github returned the following code:\n{:#?}\n",
+        &code
+    );
+    println!(
         "Github returned the following state:\n{} (expected `{}`)\n",
         state.secret(),
         csrf_state.secret()
@@ -108,6 +112,12 @@ pub async fn authenticate(client_id: String, client_secret: String) {
     println!("Github returned the following token:\n{token_res:?}\n");
 
     if let Ok(token) = token_res {
+        let access_token = token.access_token().secret();
+        /*
+         * NOTE:  token.access_token().secret() is the token!!!!!!
+         * this is where you write the token to the config file
+         * */
+        println!("ACCESS_TOKEN ... write to config: {:?}", access_token);
         // NB: Github returns a single comma-separated "scope" parameter instead of multiple
         // space-separated scopes. Github-specific clients can parse this scope into
         // multiple scopes by splitting at the commas. Note that it's not safe for the
