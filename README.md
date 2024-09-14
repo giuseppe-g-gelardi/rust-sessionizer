@@ -11,12 +11,15 @@ feel free to contribute. PLZ? :D
 ## Started:
 
 - Core logic, reading/writing to config file
+- Github auth
 
 ## TODO:
 
+- [x] read/write to config file
 - [ ] user prompts
 - [ ] TUI (https://github.com/ratatui/ratatui)
-- [ ] github auth w/ device flow
+- [x] github auth
+- [ ] migrate gh auth to device/code flow
 
 ## config file location:
 
