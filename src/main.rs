@@ -7,10 +7,9 @@ use std::error::Error;
 
 // use self::config::config::{Cfg, CfgManager}; // config lol
 mod auth;
-mod util;
 // mod config;
 
-use auth::oauth_async;
+use auth::auth::authenticate;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -19,7 +18,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let client_id = std::env::var("client_id").expect("client_id must be set");
     let client_secret = std::env::var("client_secret").expect("client_secret must be set");
 
-    let auth = oauth_async::authenticate(client_id, client_secret).await;
+    let auth = authenticate(client_id, client_secret).await;
     println!("auth: {:?}", auth);
 
     Ok(())
