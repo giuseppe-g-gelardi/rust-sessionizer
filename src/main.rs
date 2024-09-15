@@ -5,24 +5,36 @@ mod config;
 mod env;
 
 use auth::auth::authenticate;
-use config::config::CfgManager;
+use config::config::{Cfg, CfgManager};
 use env::env::load_env;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let env = load_env();
-    println!("env: {:?}", env);
 
     let config_manager = CfgManager::new_cfg_manager();
-    let config = &config_manager.get_init_config(1);
+    let config = &config_manager.get_config(1);
     println!("config: {:?}", config);
 
+    let config_exists = &config_manager.verify_config_exists();
+    println!("config_exists: {:?}", config_exists);
+
     let auth = authenticate(env.client_id, env.client_secret).await; // write the access_token (auth) to the config file
-    println!("auth: {:?}", auth);
+
+    let cfg = Cfg {
+        access_token: auth.to_string(),
+        editor: "emacs, ewwwww".to_string(),
+        alias: Some("sweet alias".to_string()),
+        tmux: true,
+    };
+
+    let _ = &config_manager.write_config(&cfg); // this is weird to me
+
+    let get_config = &config_manager.get_config(1);
+    println!("get_config: {:?}", get_config);
 
     Ok(())
 }
-
 
 // NOTE: go reference
 /*

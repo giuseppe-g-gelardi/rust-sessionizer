@@ -10,7 +10,7 @@ use url::Url;
 
 use webbrowser;
 
-pub async fn authenticate(client_id: String, client_secret: String)-> String {
+pub async fn authenticate(client_id: String, client_secret: String) -> String {
     let mut access_token = &String::new();
     let github_client_id = ClientId::new(client_id);
     let github_client_secret = ClientSecret::new(client_secret);
@@ -118,6 +118,7 @@ pub async fn authenticate(client_id: String, client_secret: String)-> String {
          * NOTE:  token.access_token().secret() is the token!!!!!!
          * this is where you write the token to the config file
          * */
+
         println!("ACCESS_TOKEN ... write to config: {:?}", access_token);
         // NB: Github returns a single comma-separated "scope" parameter instead of multiple
         // space-separated scopes. Github-specific clients can parse this scope into
