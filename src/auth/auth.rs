@@ -1,8 +1,6 @@
-use oauth2::basic::BasicClient;
-use oauth2::{reqwest, DeviceAuthorizationUrl /*, StandardDeviceAuthorizationResponse*/};
 use oauth2::{
-    AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, RedirectUrl, Scope,
-    TokenResponse, TokenUrl,
+    basic::BasicClient, reqwest, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken,
+    DeviceAuthorizationUrl, RedirectUrl, Scope, TokenResponse, TokenUrl,
 };
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpListener;
@@ -18,7 +16,6 @@ pub async fn authenticate(client_id: String, client_secret: String) -> String {
         .expect("Invalid authorization endpoint URL");
     let token_url = TokenUrl::new("https://github.com/login/oauth/access_token".to_string())
         .expect("Invalid token endpoint URL");
-    // let device_auth_url = "https://github.com/login/device/code".to_string();
     let device_auth_url =
         DeviceAuthorizationUrl::new("https://github.com/login/device/code".to_string())
             .expect("Invalid device authorization URL");
@@ -41,18 +38,19 @@ pub async fn authenticate(client_id: String, client_secret: String) -> String {
         .expect("Client should build");
 
     // Generate the authorization URL to which we'll redirect the user.
-    let (authorize_url, csrf_state) = client
+    let (authorize_url, _csrf_state) = client
         .authorize_url(CsrfToken::new_random)
         // This example is requesting access to the user's public repos and email.
-        .add_scope(Scope::new("public_repo".to_string()))
+        // .add_scope(Scope::new("public_repo".to_string())) // this is the default scope
         .add_scope(Scope::new("user:email".to_string()))
+        .add_scope(Scope::new("repo".to_string()))
         .url();
 
-    println!("Open this URL in your browser:\n{authorize_url}\n");
+    println!("If your browser doesnt open automaticatlly open this URL in your browser:\n{authorize_url}\n");
     let _ = webbrowser::open(&authorize_url.to_string()); //TODO: should see if this can return an error
 
     // open_browser
-    let (code, state) = {
+    let (code, _state) = {
         println!("Waiting for Github's authorization...");
         // A very naive implementation of the redirect server.
         let listener = TcpListener::bind("127.0.0.1:9000").await.unwrap();
@@ -79,8 +77,8 @@ pub async fn authenticate(client_id: String, client_secret: String) -> String {
                     .map(|(_, state)| CsrfToken::new(state.into_owned()))
                     .unwrap();
 
-                println!("code: {:?}", code);
-                println!("state: {:?}", state);
+                // println!("code: {:?}", code);
+                // println!("state: {:?}", state);
 
                 let message = "Go back to your terminal :)";
                 let response = format!(
@@ -96,34 +94,27 @@ pub async fn authenticate(client_id: String, client_secret: String) -> String {
         }
     };
 
-    println!("Github returned the following code:\n{}\n", code.secret());
-    println!(
-        "!!!!!!!!Github returned the following code:\n{:#?}\n",
-        &code
-    );
-    println!(
-        "Github returned the following state:\n{} (expected `{}`)\n",
-        state.secret(),
-        csrf_state.secret()
-    );
+    // println!("Github returned the following code:\n{}\n", code.secret());
+    // println!(
+    //     "Github returned the following state:\n{} (expected `{}`)\n",
+    //     state.secret(),
+    //     csrf_state.secret()
+    // );
 
     // Exchange the code with a token.
     let token_res = client.exchange_code(code).request_async(&http_client).await;
 
-    println!("Github returned the following token:\n{token_res:?}\n");
+    // println!("Github returned the following token:\n{token_res:?}\n");
 
     if let Ok(token) = &token_res {
         access_token = token.access_token().secret();
-        /*
-         * NOTE:  token.access_token().secret() is the token!!!!!!
-         * this is where you write the token to the config file
-         * */
 
-        println!("ACCESS_TOKEN ... write to config: {:?}", access_token);
+        // println!("ACCESS_TOKEN ... write to config: {:?}", access_token);
         // NB: Github returns a single comma-separated "scope" parameter instead of multiple
         // space-separated scopes. Github-specific clients can parse this scope into
         // multiple scopes by splitting at the commas. Note that it's not safe for the
         // library to do this by default because RFC 6749 allows scopes to contain commas.
+        /*
         let scopes = if let Some(scopes_vec) = token.scopes() {
             scopes_vec
                 .iter()
@@ -133,6 +124,7 @@ pub async fn authenticate(client_id: String, client_secret: String) -> String {
             Vec::new()
         };
         println!("Github returned the following scopes:\n{scopes:?}\n");
+        */
     }
     access_token.to_string()
 }

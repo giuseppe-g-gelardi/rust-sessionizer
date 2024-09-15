@@ -8,7 +8,7 @@ use dirs;
 use std::env;
 use std::path::PathBuf;
 
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Cfg {
     pub access_token: String,
     pub editor: String,
@@ -16,7 +16,7 @@ pub struct Cfg {
     pub tmux: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CfgManager {
     pub config_file_name: String, // config_file_name: Option<PathBuf>,
     pub config: Cfg,
