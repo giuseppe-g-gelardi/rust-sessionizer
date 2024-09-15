@@ -1,77 +1,54 @@
-use std::io::Error;
+use std::error::Error;
 
-use self::config::config::{Cfg, CfgManager};
-
+mod auth;
 mod config;
+mod env;
 
-// // constants ?
-// const FILE_NAME: &str = "cfg.json";
+use auth::auth::authenticate;
+use config::config::{Cfg, CfgManager};
+use env::env::load_env;
 
-// ************************************************************************** //
-// how the control flow should work:
-// main fn
-// - instante the config manager (ConfigManager::new())
-// - - check if the config file exists (config_manager.get_config_file_location())
-// - - - if it does, verify the access token (if access_token == "") authenticate()
-// - - - if it doesn't, create a new config file (let mut cfg = Config::new())
-// - - - - update the config file with default values
-// - - - - save the config file
-//
-// - if the config file exists and the access token is verified ..
-// - - start the TUI application
-// ************************************************************************** //
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    let env = load_env();
 
-fn main() -> Result<(), Error> {
     let config_manager = CfgManager::new_cfg_manager();
-    let config = &config_manager.get_init_config(1);
-
-    println!("config: {:?}", config);
-
+    let config = &config_manager.get_config(1)?;
     let config_exists = &config_manager.verify_config_exists();
-    println!("config_exists: {:?}", config_exists);
 
-    let cfg = Cfg {
-        access_token: "banana".to_string(),
-        editor: "emacs, ewwwww".to_string(),
-        alias: Some("sweet alias".to_string()),
-        tmux: true,
-    };
+    if config.access_token == "".to_string() && *config_exists == true {
+        println!("not authenicated");
+        let auth = authenticate(env.client_id, env.client_secret).await; // write the access_token (auth) to the config file
 
-    let _ = &config_manager.write_config(&cfg); // this is weird to me
-    println!("with_cfg: {:?}", &config);
+        let _ = &config_manager.write_config(&Cfg {
+            access_token: auth.to_string(),
+            ..config.clone()
+        });
+    } else {
+        println!("You are already authenticated... starting TUI!");
+        println!("access_token: {:?}", config.access_token);
+    }
 
-    let upated_cfg = &config_manager.get_init_config(4);
-    println!("updated_cfg: {:?}", &upated_cfg);
-
-    // // TODO: cli.init()
+    // let get_config = &config_manager.get_config(1);
+    // println!("get_config: {:?}", get_config);
 
     Ok(())
-    // ********************************************************************** //
-    // ********************************************************************** //
-    // ********************************************************************** //
-    // ********************************************************************** //
 }
 
-// NOTE: go reference
-/*
-// instantiate the config manager that gets passed around the app
-cm := c.NewCfgManager()
-// currently returns a pointer to a UserConfig struct and an error
-conf, err := cm.GetConfig(1)
-if err != nil {
-    log.Errorf("Error: %v", err)
-}
-
-// check if the access token is empty
-if conf.AccessToken == "" {
-    // if the access token is empty, start the auth flow
-    err := auth.Authenticate(conf, cm) // this returns a boolean (isAuth true/false) and an error. should probably remove the bool
-    if err != nil {
-        log.Errorf("Error: %v", err)
-    }
-} else {
-    fmt.Println("You are already authenticated!")
-}
-// if the access token is not empty, start the cli
-cli.InitCli(conf, cm)
-*/
+// NOTE: struct update syntax
+//
+// #[derive(Clone, Debug)]
+// struct Doc {
+//     id: usize,
+//     a: String,
+// }
+//
+// fn main() {
+//     let d = Doc {id: 1, a: "foo".to_string()};
+//     let d2 = Doc {
+//         id: 2,
+//         ..d.clone()
+//     };
+//
+//     println!("{d:?} {d2:?}");
+// }

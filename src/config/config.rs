@@ -8,7 +8,7 @@ use dirs;
 use std::env;
 use std::path::PathBuf;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Cfg {
     pub access_token: String,
     pub editor: String,
@@ -16,7 +16,7 @@ pub struct Cfg {
     pub tmux: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CfgManager {
     pub config_file_name: String, // config_file_name: Option<PathBuf>,
     pub config: Cfg,
@@ -40,12 +40,12 @@ impl CfgManager {
         println!("config_exists: {:?}", config_exists);
         match config_exists {
             // true => self.get_config(0),
-            true => self.get_init_config(0),
+            true => self.get_config(0),
             false => self.write_config(&self.config),
         }
     }
 
-    pub fn get_init_config(&self, recursive_depth: u8) -> Result<Cfg, Error> {
+    pub fn get_config(&self, recursive_depth: u8) -> Result<Cfg, Error> {
         if recursive_depth > 5 {
             return Err(Error::new(std::io::ErrorKind::NotFound, "File not found"));
         }
@@ -55,7 +55,7 @@ impl CfgManager {
             Err(_) => {
                 self.generate_default_config_file()?;
                 // self.get_config(0)
-                self.get_init_config(0)
+                self.get_config(0)
             }
         }
     }
@@ -68,7 +68,7 @@ impl CfgManager {
                     "Error writing to or saving file",
                 ));
             }
-            _ => self.get_init_config(0),
+            _ => self.get_config(0),
         }
     }
 
