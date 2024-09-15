@@ -1,0 +1,6 @@
+{
+  "access_token": "",
+  "alias": null, -- user defined
+  "editor": "vscode", -- options will be vscode, emacs, vim, neovim.. maybe more?
+  "tmux": false, -- maybe add options for zellij or other terminal multiplexers
+}
