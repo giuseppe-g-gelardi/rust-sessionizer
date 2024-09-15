@@ -14,9 +14,11 @@ timing-resistant-secret-traits = []
 
 [dependencies]
 anyhow = "1.0.88"
+crossterm = "0.28.1"
 dirs = "5.0.1"
 dotenv = "0.15.0"
 oauth2 = { version = "5.0.0-alpha.4", features = ["reqwest-blocking" ] }
+ratatui = "0.28.1"
 reqwest = { version = "0.12", optional = true, default-features = false }
 serde = { version = "1.0.209", features = ["derive"] }
 serde_json = "1.0.127"
