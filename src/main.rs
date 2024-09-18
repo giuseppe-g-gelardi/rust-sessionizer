@@ -9,7 +9,8 @@ use auth::auth::authenticate;
 use config::config::{Cfg, CfgManager};
 use env::env::load_env;
 
-use tui::tui::welcome_dialog;
+// use tui::tui::welcome_dialog;
+use tui::tui::Welcome::Init;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -35,7 +36,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // let get_config = &config_manager.get_config(1);
     // println!("get_config: {:?}", get_config);
 
-    println!("welcome dialog: {:?}", welcome_dialog());
+    // println!("welcome dialog: {:?}", welcome_dialog());
+    println!("welcome lol: {:?}", Init.execute());
+    // Welcome::Init.execute()
 
     Ok(())
 }
