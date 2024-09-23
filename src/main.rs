@@ -37,8 +37,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // println!("get_config: {:?}", get_config);
 
     // println!("welcome dialog: {:?}", welcome_dialog());
-    println!("welcome lol: {:?}", Init.execute());
+    // println!("welcome lol: {:?}", Init.execute());
     // Welcome::Init.execute()
+    Init.execute();
 
     Ok(())
 }
