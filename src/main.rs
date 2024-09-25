@@ -1,16 +1,14 @@
 use std::error::Error;
 
 mod auth;
+mod cli;
 mod config;
 mod env;
-mod tui;
 
 use auth::auth::authenticate;
+use cli::cli::init;
 use config::config::{Cfg, CfgManager};
 use env::env::load_env;
-
-// use tui::tui::welcome_dialog;
-use tui::tui::Welcome::Init;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -33,14 +31,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         println!("access_token: {:?}", config.access_token);
     }
 
-    // let get_config = &config_manager.get_config(1);
-    // println!("get_config: {:?}", get_config);
-
-    // println!("welcome dialog: {:?}", welcome_dialog());
-    // println!("welcome lol: {:?}", Init.execute());
-    // Welcome::Init.execute()
-    Init.execute();
-
+    init(&config_manager);
     Ok(())
 }
 
