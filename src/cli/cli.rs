@@ -1,8 +1,11 @@
 use crate::config::config::{Cfg, CfgManager};
 use dialoguer::{Input, Select};
-use std::io::{self, Write};
-use std::{/*error::Error,*/ time::Duration};
-use std::thread;
+
+use std::{
+    io::{self, Write},
+    thread,
+    time::Duration,
+};
 
 pub enum Editor {
     Vscode,
@@ -68,12 +71,7 @@ pub fn exit() {
     thread::sleep(Duration::from_secs(2));
 }
 
-
 fn update_config(cm: &CfgManager) {
-    // let mut editor = "".to_string();
-    // let mut alias = "".to_string();
-    // let mut tmux = false; // probably have to do some parsing here
-
     let editor = update_editor();
     let alias = update_alias();
 
@@ -82,12 +80,6 @@ fn update_config(cm: &CfgManager) {
     } else {
         false
     };
-
-    // if editor != "vscode" {
-    //     tmux = update_tmux();
-    // } else {
-    //     tmux = false;
-    // }
 
     let config_options = confirm_config_options(&editor, &alias, &tmux);
     if !config_options {
@@ -126,13 +118,32 @@ fn update_editor() -> String {
     choices[selections].to_string()
 }
 
-fn update_alias() -> String {
-    let alias = Input::<String>::new()
-        .with_prompt("Enter an alias")
+fn is_using_alias() -> bool {
+    let is_using_alias = Select::new()
+        .items(&["Yes", "No"])
+        .default(0)
+        .with_prompt("Would you like to set an alias?")
         .interact()
         .unwrap();
 
-    alias
+    match is_using_alias {
+        0 => true,
+        1 => false,
+        _ => false,
+    }
+}
+
+fn update_alias() -> String {
+    if let true = is_using_alias() {
+        let alias = Input::<String>::new()
+            .with_prompt("Enter an alias")
+            .interact()
+            .unwrap();
+
+        alias
+    } else {
+        "".to_string()
+    }
 }
 
 fn update_tmux() -> bool {
