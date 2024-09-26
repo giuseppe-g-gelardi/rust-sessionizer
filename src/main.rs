@@ -4,11 +4,13 @@ mod auth;
 mod cli;
 mod config;
 mod env;
+mod repo;
 
 use auth::auth::authenticate;
 use cli::cli::init;
 use config::config::{Cfg, CfgManager};
 use env::env::load_env;
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -30,6 +32,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         println!("You are already authenticated... starting TUI!");
         println!("access_token: {:?}", config.access_token);
     }
+
+    // let r = repo::repo::get_repos(config.access_token.to_string()).await?;
+    // println!("r: {:?}", r);
 
     init(&config_manager);
     Ok(())

@@ -1,6 +1,8 @@
 use crate::config::config::{Cfg, CfgManager};
 use dialoguer::{Input, Select};
 
+use super::super::repo::repo::get_repos;
+
 use std::{
     io::{self, Write},
     thread,
@@ -39,18 +41,19 @@ pub fn init(cm: &CfgManager) {
         .unwrap();
 
     match selections {
-        0 => open(),
+        0 => open(cm),
         1 => update_config(cm),
         2 => exit(),
         _ => exit(),
     };
 }
 
-pub fn open() {
+pub  fn open(cm: &CfgManager) {
     // TODO:
     // octocrab?? use github api, get list of users repos, append public|private to each
     // put in list
     // logic to open repo, editor, tmux, etc....
+    println!("plz help me {:?}", cm.get_config(1).unwrap().access_token.to_string());
     ()
 }
 
