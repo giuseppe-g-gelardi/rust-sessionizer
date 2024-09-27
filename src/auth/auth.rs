@@ -2,13 +2,22 @@ use oauth2::{
     basic::BasicClient, reqwest, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken,
     DeviceAuthorizationUrl, RedirectUrl, Scope, TokenResponse, TokenUrl,
 };
+use serde::Deserialize;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpListener;
 use url::Url;
+use std::error::Error;
 
 use webbrowser;
 
-pub async fn authenticate(client_id: String, client_secret: String) -> String {
+use crate::config::config::{Cfg, CfgManager};
+
+pub async fn authenticate(
+    client_id: String,
+    client_secret: String,
+    cm: &CfgManager,
+    config: &Cfg,
+) -> Result<(), Box<dyn Error>> {
     let mut access_token = &String::new();
     let github_client_id = ClientId::new(client_id);
     let github_client_secret = ClientSecret::new(client_secret);
@@ -47,7 +56,7 @@ pub async fn authenticate(client_id: String, client_secret: String) -> String {
         .url();
 
     println!("If your browser doesnt open automaticatlly open this URL in your browser:\n{authorize_url}\n");
-    let _ = webbrowser::open(&authorize_url.to_string()); //TODO: should see if this can return an error
+    let _ = webbrowser::open(&authorize_url.to_string());
 
     // open_browser
     let (code, _state) = {
@@ -94,37 +103,38 @@ pub async fn authenticate(client_id: String, client_secret: String) -> String {
         }
     };
 
-    // println!("Github returned the following code:\n{}\n", code.secret());
-    // println!(
-    //     "Github returned the following state:\n{} (expected `{}`)\n",
-    //     state.secret(),
-    //     csrf_state.secret()
-    // );
-
-    // Exchange the code with a token.
     let token_res = client.exchange_code(code).request_async(&http_client).await;
-
-    // println!("Github returned the following token:\n{token_res:?}\n");
 
     if let Ok(token) = &token_res {
         access_token = token.access_token().secret();
-
-        // println!("ACCESS_TOKEN ... write to config: {:?}", access_token);
-        // NB: Github returns a single comma-separated "scope" parameter instead of multiple
-        // space-separated scopes. Github-specific clients can parse this scope into
-        // multiple scopes by splitting at the commas. Note that it's not safe for the
-        // library to do this by default because RFC 6749 allows scopes to contain commas.
-        /*
-        let scopes = if let Some(scopes_vec) = token.scopes() {
-            scopes_vec
-                .iter()
-                .flat_map(|comma_separated| comma_separated.split(','))
-                .collect::<Vec<_>>()
-        } else {
-            Vec::new()
-        };
-        println!("Github returned the following scopes:\n{scopes:?}\n");
-        */
     }
-    access_token.to_string()
+
+    let user_info = http_client
+        .get("https://api.github.com/user")
+        .bearer_auth(access_token)
+        .header("User-Agent", "rust-sessionizer")
+        .send()
+        .await
+        .unwrap()
+        .json::<UserInfo>()
+        .await
+        .unwrap();
+
+    let username = user_info.login; // username
+    let email = user_info.email.unwrap_or("".to_string()); // email
+
+    let _ = &cm.write_config(&Cfg {
+        username: username.to_string(),
+        email: email.to_string(),
+        access_token: access_token.to_string(),
+        ..config.clone()
+    });
+
+    Ok(())
+}
+
+#[derive(Deserialize, Debug)]
+struct UserInfo {
+    login: String,
+    email: Option<String>,
 }

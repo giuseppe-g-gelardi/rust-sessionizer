@@ -8,8 +8,30 @@ use dirs;
 use std::env;
 use std::path::PathBuf;
 
+/*
+ * NOTE:
+ * consider putting the UserInfo struct in here
+ *
+ * ex: {
+ * pub struct UserInfo {
+ *    pub username: String,
+ *    pub email: String,
+ * }
+ *
+ * pub struct Cfg {
+ *   pub user_info: UserInfo,
+ *   pub access_token: String,
+ *   pub editor: String,
+ *   pub alias: Option<String>,
+ *   pub tmux: bool,
+ * }
+ * 
+ */
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Cfg {
+    pub username: String,
+    pub email: String,
     pub access_token: String,
     pub editor: String,
     pub alias: Option<String>,
@@ -27,6 +49,8 @@ impl CfgManager {
         Self {
             config_file_name: "cfg.json".to_string(), // self.get_config_file_location(),
             config: Cfg {
+                username: "".to_string(),
+                email: "".to_string(),
                 access_token: "".to_string(),
                 editor: "vscode".to_string(),
                 alias: None,
@@ -54,7 +78,6 @@ impl CfgManager {
             Ok(config) => Ok(config),
             Err(_) => {
                 self.generate_default_config_file()?;
-                // self.get_config(0)
                 self.get_config(0)
             }
         }
@@ -113,23 +136,6 @@ impl CfgManager {
 
         Some(config_dir.join("cfg.json"))
     }
-
-    // pub fn get_config(&self, recursive_depth: u8) -> Result<Cfg, Error> {
-    //     if recursive_depth > 5 {
-    //         return Err(Error::new(std::io::ErrorKind::NotFound, "File not found"));
-    //     }
-    //
-    //     match fs::read_to_string(self.config_file_name.to_string()) {
-    //         Ok(content) => match serde_json::from_str::<Cfg>(&content) {
-    //             Ok(config) => Ok(config),
-    //             Err(e) => Err(Error::new(
-    //                 std::io::ErrorKind::InvalidData,
-    //                 "Invalid data, {}".to_string() + &e.to_string(),
-    //             )),
-    //         },
-    //         Err(_) => self.get_config(recursive_depth + 1),
-    //     }
-    // }
 }
 
 // ************************************************************************** //

@@ -12,14 +12,15 @@ feel free to contribute. PLZ? :D
 
 - Core logic, reading/writing to config file
 - Github auth
+- CLI prompts (dialoguer)
 
 ## TODO:
 
 - [x] read/write to config file
 - [ ] user prompts
-- [ ] TUI (https://github.com/ratatui/ratatui)
+- [ ] TUI (https://github.com/console-rs/dialoguer) - changed from ratatui
 - [x] github auth
-- [ ] migrate gh auth to device/code flow
+- [ ] migrate gh auth to device/code flow (maybe)
 
 ## config file location:
 
