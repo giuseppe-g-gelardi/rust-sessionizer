@@ -10,17 +10,17 @@ feel free to contribute. PLZ? :D
 
 ## Started:
 
-- Core logic, reading/writing to config file
-- Github auth
-- CLI prompts (dialoguer)
+- git specific CLI prompts (dialoguer)
 
 ## TODO:
 
 - [x] read/write to config file
-- [ ] user prompts
-- [ ] TUI (https://github.com/console-rs/dialoguer) - changed from ratatui
+- [x] user prompts (main)
+- [x] user prompts (git specific)
 - [x] github auth
+- [ ] TUI (https://github.com/console-rs/dialoguer) - changed from ratatui
 - [ ] migrate gh auth to device/code flow (maybe)
+- [ ] command line args to start session
 
 ## config file location:
 
