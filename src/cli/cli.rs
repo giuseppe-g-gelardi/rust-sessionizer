@@ -1,7 +1,7 @@
 use crate::config::config::{Cfg, CfgManager};
 use dialoguer::{Input, Select};
 
-use super::super::repo::repo::get_repos;
+// use super::super::repo::repo::get_repos; // not ready yet!
 
 use std::{
     io::{self, Write},
