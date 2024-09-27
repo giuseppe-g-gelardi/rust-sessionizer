@@ -10,6 +10,9 @@ use std::path::PathBuf;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Cfg {
+    // TODO: add a field for the user's username and email -> set in auth
+    pub username: String,
+    pub email: String,
     pub access_token: String,
     pub editor: String,
     pub alias: Option<String>,
@@ -27,6 +30,8 @@ impl CfgManager {
         Self {
             config_file_name: "cfg.json".to_string(), // self.get_config_file_location(),
             config: Cfg {
+                username: "".to_string(),
+                email: "".to_string(),
                 access_token: "".to_string(),
                 editor: "vscode".to_string(),
                 alias: None,

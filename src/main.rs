@@ -8,30 +8,35 @@ mod repo;
 
 use auth::auth::authenticate;
 use cli::cli::init;
-use config::config::{Cfg, CfgManager};
+use config::config::CfgManager;
 use env::env::load_env;
-
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let env = load_env();
-
     let config_manager = CfgManager::new_cfg_manager();
     let config = &config_manager.get_config(1)?;
     let config_exists = &config_manager.verify_config_exists();
 
-    if config.access_token == "".to_string() && *config_exists == true {
-        println!("not authenicated");
-        let auth = authenticate(env.client_id, env.client_secret).await; // write the access_token (auth) to the config file
-
-        let _ = &config_manager.write_config(&Cfg {
-            access_token: auth.to_string(),
-            ..config.clone()
-        });
-    } else {
-        println!("You are already authenticated... starting TUI!");
-        println!("access_token: {:?}", config.access_token);
+    if *config_exists && config.access_token.is_empty() {
+        authenticate(env.client_id, env.client_secret, &config_manager, &config).await?;
     }
+
+    println!("You are already authenticated... starting TUI!");
+    println!("access_token: {:?}", config);
+
+    // if config.access_token == "".to_string() && *config_exists == true {
+    //     println!("not authenicated");
+    //     let auth = authenticate(env.client_id, env.client_secret, &config_manager, &config).await; // write the access_token (auth) to the config file
+    //
+    //     let _ = &config_manager.write_config(&Cfg {
+    //         access_token: auth.to_string(),
+    //         ..config.clone()
+    //     });
+    // } else {
+    //     println!("You are already authenticated... starting TUI!");
+    //     println!("access_token: {:?}", config.access_token);
+    // }
 
     // let r = repo::repo::get_repos(config.access_token.to_string()).await?;
     // println!("r: {:?}", r);

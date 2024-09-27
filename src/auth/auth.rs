@@ -6,12 +6,19 @@ use serde::Deserialize;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpListener;
 use url::Url;
+use std::error::Error;
 
 use webbrowser;
 
-pub async fn authenticate(client_id: String, client_secret: String) -> String {
+use crate::config::config::{Cfg, CfgManager};
+
+pub async fn authenticate(
+    client_id: String,
+    client_secret: String,
+    cm: &CfgManager,
+    config: &Cfg,
+) -> Result<(), Box<dyn Error>> {
     let mut access_token = &String::new();
-    let mut username = &String::new();
     let github_client_id = ClientId::new(client_id);
     let github_client_secret = ClientSecret::new(client_secret);
     let auth_url = AuthUrl::new("https://github.com/login/oauth/authorize".to_string())
@@ -49,7 +56,7 @@ pub async fn authenticate(client_id: String, client_secret: String) -> String {
         .url();
 
     println!("If your browser doesnt open automaticatlly open this URL in your browser:\n{authorize_url}\n");
-    let _ = webbrowser::open(&authorize_url.to_string()); //TODO: should see if this can return an error
+    let _ = webbrowser::open(&authorize_url.to_string());
 
     // open_browser
     let (code, _state) = {
@@ -113,10 +120,17 @@ pub async fn authenticate(client_id: String, client_secret: String) -> String {
         .await
         .unwrap();
 
-    println!("user_info: {:?}", user_info);
-    // TODO: user_info.login should be written to the config file
+    let username = user_info.login; // username
+    let email = user_info.email.unwrap_or("".to_string()); // email
 
-    access_token.to_string()
+    let _ = &cm.write_config(&Cfg {
+        username: username.to_string(),
+        email: email.to_string(),
+        access_token: access_token.to_string(),
+        ..config.clone()
+    });
+
+    Ok(())
 }
 
 #[derive(Deserialize, Debug)]
