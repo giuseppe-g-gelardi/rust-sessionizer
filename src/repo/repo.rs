@@ -1,78 +1,73 @@
-// use octocrab::models::events::Repository;
 use octocrab::{models::Repository, Octocrab};
 use std::error::Error;
 
-/*
- * NOTE: 
- * update this to fetch ALL repos, not just the first page
- *
- * use the go project as a reference
- */
-
-pub async fn get_repos(token: String) -> Result<(), Box<dyn Error>> {
-    let o = Octocrab::builder().personal_token(token).build()?;
-    let x = o
-        .current()
-        .list_repos_for_authenticated_user()
-        .send()
-        .await?;
-
-    x.into_iter().for_each(|r: Repository| {
-        let is_private = r.private.unwrap_or(false);
-        let visibility = if is_private { "private" } else { "public" };
-        let description = r
-            .description
-            .as_deref()
-            .unwrap_or("")
-            .chars()
-            .take(20)
-            .collect::<String>();
-        println!("{:?} ({:?}) {:?}", r.name, visibility, description);
-    });
-
-    Ok(())
+#[derive(Debug)]
+pub struct PartialRepo {
+    pub name: String,
+    pub html_url: String,
+    pub ssh_url: String,
+    pub description: String,
+    pub visibility: String,
 }
 
+pub async fn get_repos(token: String) -> Result<Vec<PartialRepo>, Box<dyn Error>> {
+    let octocrab = Octocrab::builder().personal_token(token).build()?;
 
-//
-// use octocrab::{models::Repository, Octocrab};
-// use std::error::Error;
-//
-// pub async fn get_repos(token: String) -> Result<(), Box<dyn Error>> {
-//     println!("token: {:?}", token);
-//     let o = Octocrab::builder().personal_token(token).build()?;
-//
-//     let mut all_repos: Vec<Repository> = Vec::new();
-//     let mut page = 1;
-//
-//     loop {
-//         // Fetch repositories for the current page
-//         let repos = o
-//             .current()
-//             .list_repos_for_authenticated_user()
-//             .per_page(100) // Maximum number of repositories per page
-//             .page(page)
-//             .send()
-//             .await?;
-//
-//         if repos.is_empty() {
-//             break; // Exit the loop if no more repositories are found
-//         }
-//
-//         all_repos.extend(repos); // Add the fetched repositories to the list
-//         page += 1; // Increment to fetch the next page
-//     }
-//
-//     // Process and print the fetched repositories
-//     all_repos.into_iter().for_each(|r: Repository| {
-//         let is_private = r.private.unwrap_or(false);
-//         let visibility = if is_private { "private" } else { "public" };
-//         
-//         let description = r.description.as_deref().unwrap_or("").chars().take(15).collect::<String>();
-//         
-//         println!("{:?} ({}) {:?}", r.name, visibility, description);
-//     });
-//
-//     Ok(())
-// }
-//
+    let mut all_repos: Vec<Repository> = Vec::new();
+    let mut page = 1;
+
+    loop {
+        let repos = octocrab
+            .current()
+            .list_repos_for_authenticated_user()
+            .per_page(100)
+            .page(page)
+            .send()
+            .await?;
+
+        if repos.items.is_empty() {
+            break;
+        }
+
+        all_repos.extend(repos); // Add the fetched repositories to the list
+        page += 1; // Increment to fetch the next page
+    }
+
+    let partial_repos = generate_partial_repos(&all_repos);
+
+    Ok(partial_repos)
+}
+
+fn generate_partial_repos(repos: &Vec<Repository>) -> Vec<PartialRepo> {
+    let mut partial_repos: Vec<PartialRepo> = Vec::new();
+    repos
+        .iter()
+        .enumerate()
+        .for_each(|(_index, r): (usize, &Repository)| {
+            let is_private = r.private.unwrap_or(false);
+            let visibility = if is_private { "private" } else { "public" };
+
+            let description = r
+                .description
+                .as_deref()
+                .unwrap_or("")
+                .chars()
+                .take(15)
+                .collect::<String>();
+
+            let html_url = r.html_url.as_ref().expect("html_url not found");
+            let ssh_url = r.ssh_url.as_ref().expect("ssh_url not found");
+
+            let partial_repo = PartialRepo {
+                name: r.name.clone(),
+                html_url: html_url.to_string(),
+                ssh_url: ssh_url.to_string(),
+                description,
+                visibility: visibility.to_string(),
+            };
+
+            partial_repos.push(partial_repo);
+        });
+
+    partial_repos
+}

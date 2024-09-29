@@ -191,32 +191,3 @@ fn confirm_config_options(editor: &str, alias: &str, tmux: &bool) -> bool {
     }
 }
 
-// pub fn update() -> String {
-//     // let config_manager = CfgManager::new_cfg_manager();
-//     // let config = &config_manager.get_config(1)?;
-//     //
-//     // let _ = &config_manager.write_config(&Cfg {
-//     //     editor: "neovim".to_string(),
-//     //     ..config.clone()
-//     // });
-//     //
-//     // let updated_config = &config_manager.get_config(1);
-//     // println!("Updated config: {:?}", updated_config);
-//     "update function!!!!".to_string()
-// }
-//
-//
-// fn update_config() -> Result<(), Box<dyn Error>> {
-//     let config_manager = CfgManager::new_cfg_manager();
-//     let config = &config_manager.get_config(1)?;
-//
-//     let _ = &config_manager.write_config(&Cfg {
-//         editor: "neovim".to_string(),
-//         ..config.clone()
-//     });
-//
-//     let updated_config = &config_manager.get_config(1);
-//     println!("Updated config: {:?}", updated_config);
-//
-//     Ok(())
-// }
