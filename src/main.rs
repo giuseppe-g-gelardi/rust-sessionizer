@@ -10,7 +10,7 @@ use auth::auth::authenticate;
 use cli::cli::init;
 use config::config::CfgManager;
 use env::env::load_env;
-use repo::repo::get_repos;
+// use repo::repo::get_repos;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -27,29 +27,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("access_token: {:?}", config);
 
     // should be moved into cli/open
-    let _ = get_repos(config.access_token.to_string()).await?;
+    // let _ = get_repos(config.access_token.to_string()).await?;
     // repos.iter().for_each(|r| {
     //     println!("{:?} {:?}", r.name, r.visibility);
     // });
 
-    init(&config_manager);
+    init(&config_manager).await;
     Ok(())
 }
 
-// NOTE: struct update syntax
-//
-// #[derive(Clone, Debug)]
-// struct Doc {
-//     id: usize,
-//     a: String,
-// }
-//
-// fn main() {
-//     let d = Doc {id: 1, a: "foo".to_string()};
-//     let d2 = Doc {
-//         id: 2,
-//         ..d.clone()
-//     };
-//
-//     println!("{d:?} {d2:?}");
-// }
