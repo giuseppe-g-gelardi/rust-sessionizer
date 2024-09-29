@@ -1,10 +1,12 @@
-use crate::config::config::{Cfg, CfgManager};
+use crate::{
+    config::config::{Cfg, CfgManager},
+    repo::repo::PartialRepo,
+};
 use dialoguer::{Input, Select};
 
 use super::open::open;
 
 use std::{
-    error::Error,
     io::{self, Write},
     thread,
     time::Duration,
@@ -28,62 +30,29 @@ impl Editor {
     }
 }
 
-pub async fn init(cm: &CfgManager) {
-    loop {
-        print!("\x1B[2J\x1B[1;1H"); // Clear the screen
-        let choices = vec!["Open", "Update", "Exit"];
+pub fn init(cm: &CfgManager, repos: Vec<PartialRepo>) {
+    print!("\x1B[2J\x1B[1;1H");
+    let choices = vec!["Open", "Update", "Exit"];
 
-        let selections = Select::new()
-            .items(&choices)
-            .default(0)
-            .with_prompt(
-                "\nWould you like to:\n- Open a repo?\n- Update your config?\n- Exit the program?\n",
-            )
-            .interact()
-            .unwrap();
+    let selections = Select::new()
+        .items(&choices)
+        .default(0)
+        .with_prompt(
+            "\nWould you like to:\n- Open a repo?\n- Update your config?\n- Exit the program?\n",
+        )
+        .interact()
+        .unwrap();
 
-        match selections {
-            0 => {
-                if let Err(e) = open(cm).await {
-                    eprintln!("Error opening repo: {}", e);
-                }
-            }
-            1 => {
-                if let Err(e) = update_config(cm) {
-                    eprintln!("Error updating config: {}", e);
-                }
-            }
-            2 => {
-                exit().await;
-                break; // Exit the loop and function
-            }
-            _ => unreachable!(),
-        }
-    }
+    match selections {
+        0 => open(cm, repos),
+        1 => update_config(cm, repos),
+        2 => exit(),
+        _ => exit(),
+    };
 }
 
-// pub fn init(cm: &CfgManager) {
-//     print!("\x1B[2J\x1B[1;1H");
-//     let choices = vec!["Open", "Update", "Exit"];
-//
-//     let selections = Select::new()
-//         .items(&choices)
-//         .default(0)
-//         .with_prompt(
-//             "\nWould you like to:\n- Open a repo?\n- Update your config?\n- Exit the program?\n",
-//         )
-//         .interact()
-//         .unwrap();
-//
-//     match selections {
-//         0 => open(cm),
-//         1 => update_config(cm),
-//         2 => exit(),
-//         _ => exit(),
-//     };
-// }
-
-pub async fn exit() {
+// pub async fn exit() -> Result<(), Box<dyn Error>> {
+pub fn exit() {
     let mut message = "Exiting".to_string();
     let sleep_duration = Duration::from_secs(1);
 
@@ -98,9 +67,11 @@ pub async fn exit() {
     print!(" Bye! 👋");
     io::stdout().flush().unwrap();
     thread::sleep(Duration::from_secs(2));
+
+    // Ok(())
 }
 
-fn update_config(cm: &CfgManager) -> Result<(), Box<dyn Error>> {
+fn update_config(cm: &CfgManager, repos: Vec<PartialRepo>) {
     let editor = update_editor();
     let alias = update_alias();
 
@@ -110,10 +81,10 @@ fn update_config(cm: &CfgManager) -> Result<(), Box<dyn Error>> {
         false
     };
 
-    let config_options = confirm_config_options(&editor, &alias, &tmux);
-    if !config_options {
-        update_config(cm);
-    }
+    let _ = confirm_config_options(&editor, &alias, &tmux);
+    // if !config_options {
+    //     update_config(cm);
+    // }
 
     let _ = &cm.write_config(&Cfg {
         editor,
@@ -122,9 +93,7 @@ fn update_config(cm: &CfgManager) -> Result<(), Box<dyn Error>> {
         ..cm.get_config(1).unwrap()
     });
 
-    init(cm);
-
-    Ok(())
+    init(cm, repos);
 }
 
 fn update_editor() -> String {
