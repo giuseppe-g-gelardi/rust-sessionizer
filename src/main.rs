@@ -23,14 +23,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
         authenticate(env.client_id, env.client_secret, &config_manager, &config).await?;
     }
 
+    print!("\x1B[2J\x1B[1;1H");
     println!("You are already authenticated... starting CL!");
     println!("access_token: {:?}", config);
 
-    // should be moved into cli/open
     let repos = get_repos(config.access_token.to_string()).await?;
-    // repos.iter().for_each(|r| {
-    //     println!("{:?} {:?}", r.name, r.visibility);
-    // });
 
     init(&config_manager, repos);
 

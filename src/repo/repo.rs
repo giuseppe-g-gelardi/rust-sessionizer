@@ -1,7 +1,7 @@
 use octocrab::{models::Repository, Octocrab};
 use std::error::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PartialRepo {
     pub name: String,
     pub html_url: String,
