@@ -15,6 +15,18 @@ pub fn open(cm: &CfgManager, repos: Vec<PartialRepo>) {
     println!("repo_url: {:#?}", repo_url);
     println!("bare_repo: {:#?}", bare_repo);
     println!("cmd: {:#?}", cmd);
+
+    /*
+     *
+     * cd into the directory
+     * command builder and command runner
+     * check if tmux is active, promptfor:
+     * - attach to existing session /new window
+     * - create new session
+     *
+     * open editor (with cloned repo)
+     *
+     */
 }
 
 fn repo_selection(repos: Vec<PartialRepo>) -> PartialRepo {
