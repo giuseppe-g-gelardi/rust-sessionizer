@@ -23,29 +23,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         authenticate(env.client_id, env.client_secret, &config_manager, &config).await?;
     }
 
-    println!("You are already authenticated... starting TUI!");
+    print!("\x1B[2J\x1B[1;1H");
+    println!("You are already authenticated... starting CL!");
     println!("access_token: {:?}", config);
 
-    let _ = get_repos(config.access_token.to_string()).await?;
+    let repos = get_repos(config.access_token.to_string()).await?;
 
-    init(&config_manager);
+    init(&config_manager, repos);
+
     Ok(())
 }
-
-// NOTE: struct update syntax
-//
-// #[derive(Clone, Debug)]
-// struct Doc {
-//     id: usize,
-//     a: String,
-// }
-//
-// fn main() {
-//     let d = Doc {id: 1, a: "foo".to_string()};
-//     let d2 = Doc {
-//         id: 2,
-//         ..d.clone()
-//     };
-//
-//     println!("{d:?} {d2:?}");
-// }

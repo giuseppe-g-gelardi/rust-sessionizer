@@ -1,13 +1,10 @@
-use crate::config::config::{Cfg, CfgManager};
+use crate::{
+    config::config::{Cfg, CfgManager},
+    repo::repo::PartialRepo,
+};
 use dialoguer::{Input, Select};
 
-// use super::super::repo::repo::get_repos; // not ready yet!
-
-use std::{
-    io::{self, Write},
-    thread,
-    time::Duration,
-};
+use super::{exit::exit, open::open};
 
 pub enum Editor {
     Vscode,
@@ -27,7 +24,7 @@ impl Editor {
     }
 }
 
-pub fn init(cm: &CfgManager) {
+pub fn init(cm: &CfgManager, repos: Vec<PartialRepo>) {
     print!("\x1B[2J\x1B[1;1H");
     let choices = vec!["Open", "Update", "Exit"];
 
@@ -41,40 +38,14 @@ pub fn init(cm: &CfgManager) {
         .unwrap();
 
     match selections {
-        0 => open(cm),
-        1 => update_config(cm),
+        0 => open(cm, repos),
+        1 => update_config(cm, repos),
         2 => exit(),
         _ => exit(),
     };
 }
 
-pub  fn open(cm: &CfgManager) {
-    // TODO:
-    // octocrab?? use github api, get list of users repos, append public|private to each
-    // put in list
-    // logic to open repo, editor, tmux, etc....
-    println!("plz help me {:?}", cm.get_config(1).unwrap().access_token.to_string());
-    ()
-}
-
-pub fn exit() {
-    let mut message = "Exiting".to_string();
-    let sleep_duration = Duration::from_secs(1);
-
-    for _ in 0..4 {
-        print!("{}\r", message);
-        io::stdout().flush().unwrap();
-        thread::sleep(sleep_duration);
-        message.push_str(".");
-    }
-
-    // NOTE: print! and println! are very different
-    print!(" Bye! 👋");
-    io::stdout().flush().unwrap();
-    thread::sleep(Duration::from_secs(2));
-}
-
-fn update_config(cm: &CfgManager) {
+fn update_config(cm: &CfgManager, repos: Vec<PartialRepo>) {
     let editor = update_editor();
     let alias = update_alias();
 
@@ -84,10 +55,10 @@ fn update_config(cm: &CfgManager) {
         false
     };
 
-    let config_options = confirm_config_options(&editor, &alias, &tmux);
-    if !config_options {
-        update_config(cm);
-    }
+    let _ = confirm_config_options(&editor, &alias, &tmux);
+    // if !config_options {
+    //     update_config(cm);
+    // }
 
     let _ = &cm.write_config(&Cfg {
         editor,
@@ -96,7 +67,7 @@ fn update_config(cm: &CfgManager) {
         ..cm.get_config(1).unwrap()
     });
 
-    init(cm)
+    init(cm, repos);
 }
 
 fn update_editor() -> String {
@@ -190,33 +161,3 @@ fn confirm_config_options(editor: &str, alias: &str, tmux: &bool) -> bool {
         _ => false,
     }
 }
-
-// pub fn update() -> String {
-//     // let config_manager = CfgManager::new_cfg_manager();
-//     // let config = &config_manager.get_config(1)?;
-//     //
-//     // let _ = &config_manager.write_config(&Cfg {
-//     //     editor: "neovim".to_string(),
-//     //     ..config.clone()
-//     // });
-//     //
-//     // let updated_config = &config_manager.get_config(1);
-//     // println!("Updated config: {:?}", updated_config);
-//     "update function!!!!".to_string()
-// }
-//
-//
-// fn update_config() -> Result<(), Box<dyn Error>> {
-//     let config_manager = CfgManager::new_cfg_manager();
-//     let config = &config_manager.get_config(1)?;
-//
-//     let _ = &config_manager.write_config(&Cfg {
-//         editor: "neovim".to_string(),
-//         ..config.clone()
-//     });
-//
-//     let updated_config = &config_manager.get_config(1);
-//     println!("Updated config: {:?}", updated_config);
-//
-//     Ok(())
-// }
