@@ -4,13 +4,7 @@ use crate::{
 };
 use dialoguer::{Input, Select};
 
-use super::open::open;
-
-use std::{
-    io::{self, Write},
-    thread,
-    time::Duration,
-};
+use super::{exit::exit, open::open};
 
 pub enum Editor {
     Vscode,
@@ -49,26 +43,6 @@ pub fn init(cm: &CfgManager, repos: Vec<PartialRepo>) {
         2 => exit(),
         _ => exit(),
     };
-}
-
-// pub async fn exit() -> Result<(), Box<dyn Error>> {
-pub fn exit() {
-    let mut message = "Exiting".to_string();
-    let sleep_duration = Duration::from_secs(1);
-
-    for _ in 0..4 {
-        print!("{}\r", message);
-        io::stdout().flush().unwrap();
-        thread::sleep(sleep_duration);
-        message.push_str(".");
-    }
-
-    // NOTE: print! and println! are very different
-    print!(" Bye! 👋");
-    io::stdout().flush().unwrap();
-    thread::sleep(Duration::from_secs(2));
-
-    // Ok(())
 }
 
 fn update_config(cm: &CfgManager, repos: Vec<PartialRepo>) {

@@ -1,4 +1,3 @@
-// use crate::cli::cli::init;
 use crate::config::config::CfgManager;
 use crate::repo::repo::PartialRepo;
 
@@ -20,11 +19,10 @@ pub fn open(cm: &CfgManager, repos: Vec<PartialRepo>) {
     let selected_repo = &repos[selections].clone(); // -> gets passed to the next function
     // println!("Opening repo: {:#?}", selected_repo);
 
-    // init(cm, repos)
     // NOTE: this shouldnt go back to init, 
     //
     // the next step is to have prompts for: 
-    // - bare repo, 
+    // - bare repo,
     // - html/ssh, 
     // - and start the session
     next_step(cm, selected_repo);

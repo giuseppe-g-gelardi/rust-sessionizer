@@ -8,25 +8,11 @@ use dirs;
 use std::env;
 use std::path::PathBuf;
 
-/*
- * NOTE:
- * consider putting the UserInfo struct in here
- *
- * ex: {
- * pub struct UserInfo {
- *    pub username: String,
- *    pub email: String,
- * }
- *
- * pub struct Cfg {
- *   pub user_info: UserInfo,
- *   pub access_token: String,
- *   pub editor: String,
- *   pub alias: Option<String>,
- *   pub tmux: bool,
- * }
- * 
- */
+#[derive(Deserialize, Debug)]
+pub struct UserInfo {
+    pub login: String,
+    pub email: Option<String>,
+}
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Cfg {

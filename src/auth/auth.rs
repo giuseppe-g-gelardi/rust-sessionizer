@@ -2,15 +2,14 @@ use oauth2::{
     basic::BasicClient, reqwest, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken,
     DeviceAuthorizationUrl, RedirectUrl, Scope, TokenResponse, TokenUrl,
 };
-use serde::Deserialize;
+use std::error::Error;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpListener;
 use url::Url;
-use std::error::Error;
 
 use webbrowser;
 
-use crate::config::config::{Cfg, CfgManager};
+use crate::config::config::{Cfg, CfgManager, UserInfo};
 
 pub async fn authenticate(
     client_id: String,
@@ -49,8 +48,6 @@ pub async fn authenticate(
     // Generate the authorization URL to which we'll redirect the user.
     let (authorize_url, _csrf_state) = client
         .authorize_url(CsrfToken::new_random)
-        // This example is requesting access to the user's public repos and email.
-        // .add_scope(Scope::new("public_repo".to_string())) // this is the default scope
         .add_scope(Scope::new("user:email".to_string()))
         .add_scope(Scope::new("repo".to_string()))
         .url();
@@ -131,10 +128,4 @@ pub async fn authenticate(
     });
 
     Ok(())
-}
-
-#[derive(Deserialize, Debug)]
-struct UserInfo {
-    login: String,
-    email: Option<String>,
 }
