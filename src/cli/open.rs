@@ -2,9 +2,22 @@ use crate::config::config::{Cfg, CfgManager};
 use crate::repo::repo::PartialRepo;
 
 use dialoguer::Select;
-use std::error::Error;
 
 pub fn open(cm: &CfgManager, repos: Vec<PartialRepo>) {
+    let selected_repo = repo_selection(repos);
+    let config = cm.get_config(1).unwrap();
+    let editor_command = set_editor_command(&config);
+    let repo_url = set_repo_url(&selected_repo);
+    let bare_repo = is_bare_repo();
+    let cmd = command_builder(&repo_url, bare_repo);
+
+    println!("editor_command: {:#?}", editor_command);
+    println!("repo_url: {:#?}", repo_url);
+    println!("bare_repo: {:#?}", bare_repo);
+    println!("cmd: {:#?}", cmd);
+}
+
+fn repo_selection(repos: Vec<PartialRepo>) -> PartialRepo {
     let repo_select_options = repos
         .iter()
         .map(|r| format!("{} - {} - {}", r.name, r.visibility, r.description))
@@ -17,16 +30,7 @@ pub fn open(cm: &CfgManager, repos: Vec<PartialRepo>) {
         .interact()
         .unwrap();
 
-    let selected_repo = &repos[selections].clone(); // -> gets passed to the next function
-                                                    // println!("Opening repo: {:#?}", selected_repo);
-
-    println!("Selected repo: {:#?}", selected_repo);
-    println!("user config: {:#?}", cm.get_config(1).unwrap());
-
-    let config = cm.get_config(1).unwrap();
-    let editor_command = set_editor_command(&config);
-    let repo_url = set_repo_url(selected_repo);
-    let bare_repo = is_bare_repo();
+    repos[selections].clone()
 }
 
 fn command_builder(repo_url: &str, is_bare: bool) -> Vec<&str> {
@@ -50,21 +54,33 @@ fn set_editor_command(config: &Cfg) -> String {
 }
 
 fn set_repo_url(repo: &PartialRepo) -> String {
-    // result of user prompt to clone via "html" or "ssh"
-    let repo_url = ""; // html_ssh() prompt
+    let choices = vec!["html", "ssh"];
+    let selections = Select::new()
+        .items(&choices)
+        .default(0)
+        .with_prompt("Would you like to clone via html or ssh?")
+        .interact()
+        .unwrap();
 
-    if repo_url == "ssh" {
-        return repo.ssh_url.to_string();
-    }
-    repo.html_url.to_string()
+    let repo_url = if selections == 0 {
+        repo.html_url.to_string()
+    } else {
+        repo.ssh_url.to_string()
+    };
+
+    repo_url
 }
 
 fn is_bare_repo() -> bool {
-    // result of user prompt to clone via "bare" or "html"
-    let bare_repo = ""; // bare_html() prompt
+    let choices = vec!["regular (recommended)", "bare"];
+    let selections = Select::new()
+        .items(&choices)
+        .default(0)
+        .with_prompt("Would you like to clone as a bare repo? not recommended unless you know what you're doing")
+        .interact()
+        .unwrap();
 
-    if bare_repo == "bare" {
-        return true;
-    }
-    false
+    let is_bare = if selections == 1 { true } else { false };
+
+    is_bare
 }
